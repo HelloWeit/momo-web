@@ -14,7 +14,6 @@ public final class Mo {
 		throw new MoException(ResultEnum.INIT_ERROR);
 	}
 
-
 	public static MoServer moServerBuilder() {
 		return new MoServer();
 	}

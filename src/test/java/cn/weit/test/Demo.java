@@ -1,10 +1,10 @@
 package cn.weit.test;
 
 import cn.weit.happymo.Mo;
-import cn.weit.happymo.annotion.MoBody;
-import cn.weit.happymo.annotion.MoController;
-import cn.weit.happymo.annotion.MoParam;
-import cn.weit.happymo.annotion.MoRequestMapping;
+import cn.weit.happymo.annotation.MoBody;
+import cn.weit.happymo.annotation.MoController;
+import cn.weit.happymo.annotation.MoParam;
+import cn.weit.happymo.annotation.MoRequestMapping;
 import cn.weit.happymo.enums.RequestMethod;
 import lombok.extern.slf4j.Slf4j;
 

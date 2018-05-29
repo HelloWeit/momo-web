@@ -1,31 +1,36 @@
 package cn.weit.test;
 
-import cn.weit.happymo.annotion.MoFilter;
+import cn.weit.happymo.annotation.MoFilter;
+import cn.weit.happymo.annotation.MoFilterUrl;
 import cn.weit.happymo.filter.AbstractMoMoFilter;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
-@MoFilter
+@MoFilter(url = "/hello/mo")
 @Slf4j
 public class DemoFilter extends AbstractMoMoFilter {
-	private String s = "";
+
+	@MoFilterUrl
+	private String filterUrl;
 
 	@Override
 	public void init() {
-		s = "we love u";
+		log.info("init s:{}", filterUrl);
 	}
 
 	@Override
-	public void before(FullHttpRequest request, FullHttpResponse response) {
-
-		log.info("before");
+	public boolean before(FullHttpRequest request, FullHttpResponse response) {
+		if (request.uri().startsWith(filterUrl)) {
+			log.info("forbidden {}", request.uri());
+			return false;
+		}
+		log.info("allow {}", request.uri());
+		return true;
 	}
 
 	@Override
 	public void after(FullHttpRequest request, FullHttpResponse response) {
 		log.info("after");
-
 	}
 }

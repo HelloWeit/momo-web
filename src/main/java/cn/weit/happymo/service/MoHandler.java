@@ -1,5 +1,6 @@
 package cn.weit.happymo.service;
 
+import cn.weit.happymo.constants.FilterConstant;
 import cn.weit.happymo.context.MoMoContext;
 import cn.weit.happymo.filter.AbstractMoMoFilter;
 import cn.weit.happymo.params.ControllerInfo;
@@ -13,6 +14,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -38,14 +40,27 @@ public class MoHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	@Override
+	public void channelActive(ChannelHandlerContext ctx) throws Exception {
+		response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+	}
+
+	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		request = (FullHttpRequest) msg;
 		response = new DefaultFullHttpResponse(request.getProtocolVersion(), HttpResponseStatus.OK);
 		ControllerInfo controllerInfo = moMoContext.getControllerInfo(request.uri());
 		List<FilterInfo> filterInfos = moMoContext.getFilters(request.uri());
-		doFilters(filterInfos,"before");
+		if (!doFilters(filterInfos, FilterConstant.BEFORE)) {
+			send(ctx, HttpResponseStatus.FORBIDDEN);
+			return;
+		}
 		doController(controllerInfo);
-		doFilters(filterInfos, "after");
+		doFilters(filterInfos, FilterConstant.AFTER);
+		send(ctx, HttpResponseStatus.OK);
+	}
+
+	private void send(ChannelHandlerContext ctx, HttpResponseStatus status) {
+		response.setStatus(status);
 		ctx.channel().writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 	}
 
@@ -103,22 +118,25 @@ public class MoHandler extends ChannelInboundHandlerAdapter {
 		}
 		return params;
 	}
-	private void doFilters(List<FilterInfo> filterInfos, String methodName) throws Exception {
+	private boolean doFilters(List<FilterInfo> filterInfos, String methodName) throws Exception {
 		if (filterInfos == null || filterInfos.isEmpty()) {
-			return;
+			return true;
 		}
 		for (FilterInfo filterInfo : filterInfos) {
 			Class<? extends AbstractMoMoFilter> clazz = filterInfo.getClazz();
 			Method method = clazz.getDeclaredMethod(methodName, FullHttpRequest.class, FullHttpResponse.class);
-			method.invoke(clazz.newInstance(), request, response);
+			boolean isPass = (boolean) method.invoke(filterInfo.getAbstractMoMoFilter(), request, response);
+			if (StringUtils.equals(methodName, FilterConstant.BEFORE) && !isPass ) {
+				return false;
+			}
 		}
+		return true;
 	}
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		log.error("Netty exceptionCaught", cause);
-		FullHttpResponse errorResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST);
-		ctx.channel().writeAndFlush(errorResponse).addListener(ChannelFutureListener.CLOSE);
+		send(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
 		ctx.close();
 	}
 }

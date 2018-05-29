@@ -17,7 +17,7 @@ public abstract class AbstractMoMoFilter {
 	 * 前置处理
 	 * @param request
 	 */
-	public abstract void before(FullHttpRequest request, FullHttpResponse response);
+	public abstract boolean before(FullHttpRequest request, FullHttpResponse response);
 
 	/**
 	 * 后置处理

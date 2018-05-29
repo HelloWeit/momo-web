@@ -5,7 +5,6 @@ import cn.weit.happymo.params.FilterInfo;
 import cn.weit.happymo.utils.PackageScanner;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.sql.rowset.Predicate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

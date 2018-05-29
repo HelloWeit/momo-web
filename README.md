@@ -40,32 +40,37 @@ public class Demo {
   
 添加*Filter*：
 ```Java
-@MoFilter
+@MoFilter(url = "/hello/mo")
 @Slf4j
 public class DemoFilter extends AbstractMoMoFilter {
-	private String s;
+
+	@MoFilterUrl
+	private String filterUrl;
 
 	@Override
 	public void init() {
-		s = "we love u";
+		log.info("init s:{}", filterUrl);
 	}
 
 	@Override
-	public void before(FullHttpRequest request, FullHttpResponse response) {
-
-		log.info("before：{}",s);
+	public boolean before(FullHttpRequest request, FullHttpResponse response) {
+		if (request.uri().startsWith(filterUrl)) {
+			log.info("forbidden {}", request.uri());
+			return false;
+		}
+		log.info("allow {}", request.uri());
+		return true;
 	}
 
 	@Override
 	public void after(FullHttpRequest request, FullHttpResponse response) {
-		log.info("after {}", s);
-
+		log.info("after");
 	}
 }
 ```
-*@MoFilter* 默认顺序为0，数字越小优先执行。
+*@MoFilter* 默认顺序数字为0，数字越小优先执行。
 
 ### 4.版本
-
+  - v1.1   完善*Filter*功能，修改部分命名
   - v1.0.1 修复*bug*，优化注解扫描，增加*readme.md*
   - v1.0   支持注解调用，支持常用的*Get*、*Post*请求，支持*Filter*。

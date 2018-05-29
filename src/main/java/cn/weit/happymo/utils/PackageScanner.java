@@ -1,6 +1,6 @@
 package cn.weit.happymo.utils;
 
-import cn.weit.happymo.annotion.*;
+import cn.weit.happymo.annotation.*;
 import cn.weit.happymo.filter.AbstractMoMoFilter;
 import cn.weit.happymo.params.ControllerInfo;
 import cn.weit.happymo.params.FilterInfo;
@@ -66,13 +66,24 @@ public class PackageScanner {
 
 	private void scanFilter(Class<?> clazz) {
 		try {
-			Method method = clazz.getDeclaredMethod("init");
-			method.invoke(clazz.newInstance());
 			MoFilter moFilter = clazz.getAnnotation(MoFilter.class);
+			Field[] fields = clazz.getDeclaredFields();
+			AbstractMoMoFilter abstractMoMoFilter = (AbstractMoMoFilter) clazz.newInstance();
+			for (Field field : fields) {
+				if (field.isAnnotationPresent(MoFilterUrl.class)) {
+					field.setAccessible(true);
+					field.set(abstractMoMoFilter, moFilter.url());
+					break;
+				}
+			}
 			FilterInfo filterInfo = new FilterInfo();
-			filterInfo.setClazz((Class<? extends AbstractMoMoFilter>) clazz);
 			filterInfo.setUrl(moFilter.url());
+			filterInfo.setClazz((Class<? extends AbstractMoMoFilter>) clazz);
+			filterInfo.setAbstractMoMoFilter(abstractMoMoFilter);
 			filterMap.put(moFilter.value(), filterInfo);
+
+			Method method = clazz.getDeclaredMethod("init");
+			method.invoke(abstractMoMoFilter);
 		} catch (Exception e) {
 			log.error("scan filter error", e);
 			throw new MoException(ResultEnum.SCAN_ERROR);
@@ -91,8 +102,7 @@ public class PackageScanner {
 				.forEach(method -> {
 					MethodInfo methodInfo = new MethodInfo();
 					methodInfo.setParameters(Arrays.stream(method.getParameters())
-							.filter(p -> p.isAnnotationPresent(MoParam.class)
-									|| p.isAnnotationPresent(MoBody.class))
+							.filter(p -> p.isAnnotationPresent(MoParam.class) || p.isAnnotationPresent(MoBody.class))
 							.collect(Collectors.toCollection(ArrayList::new)));
 					MoRequestMapping moRequestMapping = method.getAnnotation(MoRequestMapping.class);
 					methodInfo.setName(method.getName());

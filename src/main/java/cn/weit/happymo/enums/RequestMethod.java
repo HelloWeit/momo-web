@@ -1,13 +1,13 @@
 package cn.weit.happymo.enums;
 
+/**
+ * @author weitong
+ */
+
 public enum RequestMethod {
 	GET,
-	HEAD,
 	POST,
 	PUT,
-	PATCH,
-	DELETE,
-	OPTIONS,
-	TRACE,
+
 	;
 }

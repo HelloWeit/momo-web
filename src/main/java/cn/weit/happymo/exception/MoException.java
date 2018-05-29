@@ -2,6 +2,9 @@ package cn.weit.happymo.exception;
 
 import cn.weit.happymo.enums.ResultEnum;
 
+/**
+ * @author weitong
+ */
 public class MoException extends RuntimeException {
 	private Integer code;
 
@@ -11,7 +14,6 @@ public class MoException extends RuntimeException {
 	}
 
 	public MoException(ResultEnum resultEnum) {
-		super(resultEnum.getMessage());
-		this.code = resultEnum.getCode();
+		this(resultEnum.getCode(), resultEnum.getMessage());
 	}
 }

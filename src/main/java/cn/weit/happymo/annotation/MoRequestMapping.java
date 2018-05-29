@@ -1,4 +1,4 @@
-package cn.weit.happymo.annotion;
+package cn.weit.happymo.annotation;
 
 import cn.weit.happymo.enums.RequestMethod;
 

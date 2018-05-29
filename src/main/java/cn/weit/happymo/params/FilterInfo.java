@@ -10,4 +10,5 @@ import lombok.Data;
 public class FilterInfo {
 	private String url;
 	private Class<? extends AbstractMoMoFilter> clazz;
+	private AbstractMoMoFilter abstractMoMoFilter;
 }
