@@ -21,7 +21,7 @@ public class Demo {
 	@MoRequestMapping(value = "/momo", method = RequestMethod.POST)
 	public String hi(@MoBody Toys toys) {
 		log.info("toys:{}", toys);
-		return "MoMo's favorite toy is " + toys.getCar();
+		return "MoMo's favorite toy is " + toys.getToy();
 	}
 
 
