@@ -1,6 +1,7 @@
 package cn.weit.test;
 
 import cn.weit.happymo.Mo;
+import cn.weit.happymo.annotion.MoBody;
 import cn.weit.happymo.annotion.MoController;
 import cn.weit.happymo.annotion.MoParam;
 import cn.weit.happymo.annotion.MoRequestMapping;
@@ -18,6 +19,12 @@ public class Demo {
 	public String hello(@MoParam String value) {
 		log.info("value:{}", value);
 		return "Hello MoMo "+value;
+	}
+
+	@MoRequestMapping(value = "/momo", method = RequestMethod.POST)
+	public String hi(@MoBody Toys toys) {
+		log.info("toys:{}", toys);
+		return "MoMo's favorite toy is " + toys.getToy();
 	}
 
 

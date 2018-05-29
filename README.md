@@ -18,6 +18,12 @@ public class Demo {
 		return "Hello MoMo "+value;
 	}
 
+	@MoRequestMapping(value = "/momo", method = RequestMethod.POST)
+	public String hi(@MoBody Toys toys) {
+		log.info("toys:{}", toys);
+		return "MoMo's favorite toy is " + toys.getCar();
+	}
+
 
 	public static void main(String[] args) {
 		Mo.moServerBuilder()
@@ -28,7 +34,9 @@ public class Demo {
 	}
 }
 ```
-运行`http://localhost:8080/hello/mo?value=love`, 浏览器会显示 `Hello MoMo love`.
+简单验证：  
+*Get*请求：浏览器运行`http://localhost:8080/hello/mo?value=love`, 会显示 `Hello MoMo love`.  
+*Post*请求：*PostMan*运行`http://localhost:8080/hello/momo`, 同时配置Body里面json格式参数,会显示 `MoMo's favorite toy is car`.  
 添加*Filter*：
 ```Java
 @MoFilter
