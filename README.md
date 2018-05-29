@@ -1,6 +1,6 @@
 # MoMoWeb
 ### 1.说明
-利用Netty实现了一个类似于*SpringMVC*的web框架。运行时不需要tomcat这些web容器，跑起来刚刚的。
+利用Netty实现了一个类似于*SpringMVC*的*web*框架。运行时不需要*tomcat*这些*web*容器，跑起来刚刚的。
 ### 2.运行条件
 需要*JDK8*以上，同时需要在编译时候配置 _*"-parameters"*_。
 >*JDK7*及以下通过反射是拿不到方法里的具体参数名，看了*spring*的源码为了兼容性读取文件后在里面找参数名，很2很暴力。
@@ -28,7 +28,7 @@ public class Demo {
 	}
 }
 ```
-运行`http://localhost:8080/hello/mo?k=love`, 浏览器会显示 `Hello MoMo love`.
+运行`http://localhost:8080/hello/mo?value=love`, 浏览器会显示 `Hello MoMo love`.
 添加*Filter*：
 ```Java
 @MoFilter
@@ -58,5 +58,5 @@ public class DemoFilter extends AbstractMoMoFilter {
 
 ### 5.版本
 
-  - v1.0.1 修复bug，优化注解扫描，增加readme
-  - v1.0   支持注解调用，支持常用的Get、Post请求，支持Filter。
+  - v1.0.1 修复*bug*，优化注解扫描，增加*readme.md*
+  - v1.0   支持注解调用，支持常用的*Get*、*Post*请求，支持*Filter*。
