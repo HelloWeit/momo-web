@@ -37,6 +37,7 @@ public class Demo {
 简单验证：  
 *Get*请求：浏览器运行`http://localhost:8080/hello/mo?value=love`, 会显示 `Hello MoMo love`.  
 *Post*请求：*PostMan*运行`http://localhost:8080/hello/momo`, 同时配置Body里面json格式参数,会显示 `MoMo's favorite toy is car`.  
+  
 添加*Filter*：
 ```Java
 @MoFilter
