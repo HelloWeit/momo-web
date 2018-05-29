@@ -18,7 +18,7 @@ public class Demo {
 	@MoRequestMapping(value = "/mo", method = RequestMethod.GET)
 	public String hello(@MoParam String value) {
 		log.info("value:{}", value);
-		return "Hello MoMo "+value;
+		return "We love "+value;
 	}
 
 	@MoRequestMapping(value = "/momo", method = RequestMethod.POST)

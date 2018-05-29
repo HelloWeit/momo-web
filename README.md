@@ -15,7 +15,7 @@ public class Demo {
 	@MoRequestMapping(value = "/mo", method = RequestMethod.GET)
 	public String hello(@MoParam String value) {
 		log.info("value:{}", value);
-		return "Hello MoMo "+value;
+		return "We love "+value;
 	}
 
 	@MoRequestMapping(value = "/momo", method = RequestMethod.POST)
@@ -35,7 +35,7 @@ public class Demo {
 }
 ```
 简单验证：  
-*Get*请求：浏览器运行`http://localhost:8080/hello/mo?value=love`, 会显示 `Hello MoMo love`.  
+*Get*请求：浏览器运行`http://localhost:8080/hello/mo?value=momo`, 会显示 `We love momo`.  
 *Post*请求：*PostMan*运行`http://localhost:8080/hello/momo`, 同时配置Body里面json格式参数,会显示 `MoMo's favorite toy is car`.  
   
 添加*Filter*：
