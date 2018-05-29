@@ -56,7 +56,7 @@ public class DemoFilter extends AbstractMoMoFilter {
 ```
 *@MoFilter* 默认顺序为0，数字越小优先执行。
 
-### 5.版本
+### 4.版本
 
   - v1.0.1 修复*bug*，优化注解扫描，增加*readme.md*
   - v1.0   支持注解调用，支持常用的*Get*、*Post*请求，支持*Filter*。
