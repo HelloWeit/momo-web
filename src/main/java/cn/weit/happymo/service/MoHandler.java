@@ -27,18 +27,22 @@ import java.util.Map;
 @Slf4j
 public class MoHandler extends ChannelInboundHandlerAdapter {
 
-	private ThreadLocal<MoMoContext> contextThreadLocal = ThreadLocal.withInitial(() -> new MoMoContext());
-
 	private FullHttpRequest request;
 
 	private FullHttpResponse response;
+
+	private MoMoContext moMoContext;
+
+	public MoHandler(MoMoContext moMoContext) {
+		this.moMoContext = moMoContext;
+	}
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		request = (FullHttpRequest) msg;
 		response = new DefaultFullHttpResponse(request.getProtocolVersion(), HttpResponseStatus.OK);
-		ControllerInfo controllerInfo = contextThreadLocal.get().getControllerInfo(request.uri());
-		List<FilterInfo> filterInfos = contextThreadLocal.get().getFilters(request.uri());
+		ControllerInfo controllerInfo = moMoContext.getControllerInfo(request.uri());
+		List<FilterInfo> filterInfos = moMoContext.getFilters(request.uri());
 		doFilters(filterInfos,"before");
 		doController(controllerInfo);
 		doFilters(filterInfos, "after");

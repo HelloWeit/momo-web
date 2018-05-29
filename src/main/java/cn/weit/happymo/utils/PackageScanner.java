@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
  * @author weitong
  */
 @Slf4j
-
 public class PackageScanner {
 
 	private ClassLoader classLoader;

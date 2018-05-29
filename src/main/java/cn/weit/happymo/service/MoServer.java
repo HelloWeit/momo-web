@@ -1,6 +1,7 @@
 package cn.weit.happymo.service;
 
 
+import cn.weit.happymo.context.MoMoContext;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -21,6 +22,7 @@ public class MoServer {
 	private String ip;
 	private int port;
 	private ServerBootstrap bootstrap;
+	private MoMoContext moMoContext;
 	private Channel channel;
 	private EventLoopGroup boss;
 	private EventLoopGroup worker;
@@ -44,6 +46,7 @@ public class MoServer {
 	}
 
 	public void start() {
+		this.moMoContext = new MoMoContext();
 		boss = new NioEventLoopGroup(bossNum);
 		worker = new NioEventLoopGroup(workerNum);
 		try {
@@ -57,10 +60,10 @@ public class MoServer {
 							cp.addLast("timeout", new ReadTimeoutHandler(10));
 							cp.addLast("codec", new HttpServerCodec());
 							cp.addLast("aggregator", new HttpObjectAggregator(512 * 1024));
-							cp.addLast("myHandler", new MoHandler());
+							cp.addLast("myHandler", new MoHandler(moMoContext));
 						}
 					});
-			bootstrap.option(ChannelOption.TCP_NODELAY, true)
+			bootstrap.childOption(ChannelOption.TCP_NODELAY, true)
 					.option(ChannelOption.SO_REUSEADDR, true)
 					.option(ChannelOption.SO_BACKLOG, 100);
 			channel = bootstrap.bind(ip, port).channel();
