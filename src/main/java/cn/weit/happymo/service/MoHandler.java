@@ -6,6 +6,7 @@ import cn.weit.happymo.filter.AbstractMoMoFilter;
 import cn.weit.happymo.params.ControllerInfo;
 import cn.weit.happymo.params.FilterInfo;
 import cn.weit.happymo.params.MethodInfo;
+import cn.weit.happymo.session.SessionManger;
 import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
@@ -74,10 +75,10 @@ public class MoHandler extends ChannelInboundHandlerAdapter {
 
 				List<Class<?>> classes = new ArrayList<>();
 				List<String> values = new ArrayList<>();
-				for (Parameter parameter : methodInfo.getParameters()) {
-					classes.add(parameter.getType());
-					values.add(params.get(parameter.getName()));
-				}
+				methodInfo.getParameters().stream().forEach(p -> {
+					classes.add(p.getType());
+					values.add(params.get(p.getName()));
+				});
 				Class[] clazzType = new Class[classes.size()];
 				classes.toArray(clazzType);
 				Method method = clazz.getDeclaredMethod(methodInfo.getName(),clazzType);

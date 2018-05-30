@@ -68,9 +68,23 @@ public class DemoFilter extends AbstractMoMoFilter {
 	}
 }
 ```
-*@MoFilter* 默认顺序数字为0，数字越小优先执行。
-
+*@MoFilter* 默认顺序数字为0，数字越小优先执行。  
+  
+*Session*/*Cookie*设置：  
+SessionManger提供四种方法支持*Session*/*Cookie*设置：
+- response设置cookie  
+ > void setCookie(FullHttpRequest request, FullHttpResponse response, String name, String value)  
+ > void setCookie(FullHttpRequest request, FullHttpResponse response, String name, String value,
+ 						  long maxAge, boolean isHttpOnly, boolean isSecure)  
+- 获取session  
+ > Object getSessionValue(String cookieValue, SessionTime sessionTime)  
+- 比较cookie和session  
+ > boolean equals(String cookieValue)  
+- 设置session  
+ > void setSession(String key, Object value, SessionTime sessionTime)
+ 
 ### 4.版本
+  - v1.2   支持session、cookie
   - v1.1   完善*Filter*功能，修改部分命名
   - v1.0.1 修复*bug*，优化注解扫描，增加*readme.md*
   - v1.0   支持注解调用，支持常用的*Get*、*Post*请求，支持*Filter*。

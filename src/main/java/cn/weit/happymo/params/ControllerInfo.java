@@ -15,7 +15,7 @@ public class ControllerInfo {
 	private Class<?> clazz;
 
 	public MethodInfo getMethodInfo(String url) {
-		return methodInfos.get(methodInfos.keySet().stream().filter(x->url.startsWith(x)).findFirst().get());
+		return methodInfos.get(methodInfos.keySet().stream().filter(x->url.startsWith(x)).findFirst().orElse(""));
 	}
 
 }
