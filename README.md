@@ -33,10 +33,16 @@ public class Demo {
 				.start();
 	}
 }
+
+@Data
+public class Toys {
+	private String toy;
+	private int num;
+}
 ```
 简单验证：  
 *Get*请求：浏览器运行`http://localhost:8080/hello/mo?value=momo`, 会显示 `We love momo`.  
-*Post*请求：*PostMan*运行`http://localhost:8080/hello/momo`, 同时配置Body里面json格式参数,会显示 `MoMo's favorite toy is car`.  
+*Post*请求：*PostMan*运行`http://localhost:8080/hello/momo`, 同时配置Body里面json格式参数,会显示 `MoMo's favorite toy is xxx`.  
   
 添加*Filter*：
 ```Java
