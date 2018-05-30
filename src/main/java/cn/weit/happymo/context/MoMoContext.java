@@ -2,7 +2,7 @@ package cn.weit.happymo.context;
 
 import cn.weit.happymo.params.ControllerInfo;
 import cn.weit.happymo.params.FilterInfo;
-import cn.weit.happymo.utils.PackageScanner;
+import cn.weit.happymo.scanner.PackageScanner;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;

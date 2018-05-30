@@ -1,4 +1,4 @@
-package cn.weit.happymo.utils;
+package cn.weit.happymo.scanner;
 
 import cn.weit.happymo.annotation.*;
 import cn.weit.happymo.filter.AbstractMoMoFilter;
