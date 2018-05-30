@@ -2,6 +2,7 @@ package cn.weit.happymo.service;
 
 
 import cn.weit.happymo.context.MoMoContext;
+import cn.weit.happymo.session.SessionManger;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -47,6 +48,7 @@ public class MoServer {
 
 	public void start() {
 		this.moMoContext = new MoMoContext();
+		SessionManger.Instance().init(workerNum);
 		boss = new NioEventLoopGroup(bossNum);
 		worker = new NioEventLoopGroup(workerNum);
 		try {
