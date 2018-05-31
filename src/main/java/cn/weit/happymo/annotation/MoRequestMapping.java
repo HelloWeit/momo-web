@@ -9,5 +9,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface MoRequestMapping {
 	String value() default "";
+
 	RequestMethod method() default RequestMethod.GET;
 }

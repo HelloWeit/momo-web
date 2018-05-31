@@ -28,7 +28,7 @@ public class MoMoContext {
 	}
 
 	public ControllerInfo getControllerInfo(String url) {
-		return controllerInfoMap.get(controllerInfoMap.keySet().stream().filter(k->url.startsWith(k)).findFirst().orElse(""));
+		return controllerInfoMap.get(controllerInfoMap.keySet().stream().filter(k -> url.startsWith(k)).findFirst().orElse(""));
 	}
 
 	public List<FilterInfo> getFilters(String url) {

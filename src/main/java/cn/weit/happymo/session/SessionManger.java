@@ -21,12 +21,13 @@ public class SessionManger {
 
 	private final Map<SessionTime, SessionHolder> sessionHolderMap = new ConcurrentHashMap<>();
 
-	private SessionManger(){}
+	private SessionManger() {
+	}
 
 	public static SessionManger Instance() {
-		if(instance == null){
+		if (instance == null) {
 			synchronized (SessionManger.class) {
-				if(instance == null){
+				if (instance == null) {
 					instance = new SessionManger();
 				}
 			}
@@ -37,7 +38,7 @@ public class SessionManger {
 	public void init(int workerNum) {
 		Arrays.stream(SessionTime.values())
 				.filter(s -> !s.equals(SessionTime.ERROR))
-				.forEach(s ->sessionHolderMap.put(s, new SessionHolder()
+				.forEach(s -> sessionHolderMap.put(s, new SessionHolder()
 						.withExpireTime(s.getTime())
 						.withWorkerNum(workerNum)
 						.builder()));
@@ -69,7 +70,7 @@ public class SessionManger {
 
 	public void setSession(String key, Object value, SessionTime sessionTime) {
 		SessionHolder sessionHolder = sessionHolderMap.get(sessionTime);
-		if (sessionHolder!=null) {
+		if (sessionHolder != null) {
 			sessionHolder.set(key, value);
 		}
 	}

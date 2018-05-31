@@ -7,7 +7,5 @@ package cn.weit.happymo.enums;
 public enum RequestMethod {
 	GET,
 	POST,
-	PUT,
-
-	;
+	PUT,;
 }

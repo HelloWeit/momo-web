@@ -7,5 +7,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface MoFilter {
 	int value() default 0;
+
 	String url() default "";
 }

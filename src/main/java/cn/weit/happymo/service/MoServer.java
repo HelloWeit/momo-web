@@ -72,7 +72,7 @@ public class MoServer {
 			log.info("MoServer start");
 			channel.closeFuture().sync();
 		} catch (InterruptedException e) {
-			log.error("MoServer Error!",e);
+			log.error("MoServer Error!", e);
 			stop();
 		}
 	}

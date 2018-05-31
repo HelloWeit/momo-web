@@ -3,7 +3,6 @@ package cn.weit.happymo.enums;
 import lombok.Getter;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * @author weitong
@@ -12,10 +11,8 @@ import java.util.Optional;
 @Getter
 public enum SessionTime {
 	NORMAL(1),
-	SPECIAL(7*24),
-	ERROR(-1),
-
-	;
+	SPECIAL(7 * 24),
+	ERROR(-1),;
 	private long time;
 
 	SessionTime(long time) {
@@ -24,7 +21,7 @@ public enum SessionTime {
 
 	public SessionTime getEnumByValue(long value) {
 		return Arrays.stream(SessionTime.values())
-				.filter(sessionTime -> sessionTime.getTime()==value)
+				.filter(sessionTime -> sessionTime.getTime() == value)
 				.findFirst()
 				.orElse(SessionTime.ERROR);
 	}

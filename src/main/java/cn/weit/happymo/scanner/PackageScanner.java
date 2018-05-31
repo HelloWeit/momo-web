@@ -42,10 +42,10 @@ public class PackageScanner {
 	}
 
 	public void scan(String... packages) {
-		if (packages == null || packages.length==0) {
+		if (packages == null || packages.length == 0) {
 			throw new MoException(ResultEnum.PARAM_ERROR);
 		}
-		Arrays.stream(packages).map(b->parse(b)).flatMap(sList -> sList.stream()).forEach(s -> doScan(s));
+		Arrays.stream(packages).map(b -> parse(b)).flatMap(sList -> sList.stream()).forEach(s -> doScan(s));
 	}
 
 	private void doScan(String className) {
@@ -59,7 +59,7 @@ public class PackageScanner {
 			}
 
 		} catch (Exception e) {
-			log.error("doScan",e);
+			log.error("doScan", e);
 			throw new MoException(ResultEnum.SCAN_ERROR);
 		}
 	}
@@ -118,7 +118,7 @@ public class PackageScanner {
 	private List<String> parse(String base) {
 		List<String> classNames = new ArrayList<>();
 
-		String splashPath = base.replace("\\.","/");
+		String splashPath = base.replace("\\.", "/");
 		URL url = classLoader.getResource(splashPath);
 		if (url == null) {
 			log.info("url null, basePackage:{} ", base);
@@ -179,6 +179,7 @@ public class PackageScanner {
 
 		return nameList;
 	}
+
 	private boolean isClassFile(String name) {
 		return name.endsWith(".class");
 	}
@@ -190,10 +191,10 @@ public class PackageScanner {
 	private String trimExtension(String string) {
 		int pos = string.lastIndexOf('.');
 		if (-1 != pos) {
-			return string.substring(1, pos).replaceAll("/",".");
+			return string.substring(1, pos).replaceAll("/", ".");
 		}
 
-		return string.replaceAll("/",".");
+		return string.replaceAll("/", ".");
 	}
 
 	public List<FilterInfo> getFilters() {

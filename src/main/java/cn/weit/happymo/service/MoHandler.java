@@ -2,11 +2,12 @@ package cn.weit.happymo.service;
 
 import cn.weit.happymo.constants.FilterConstant;
 import cn.weit.happymo.context.MoMoContext;
+import cn.weit.happymo.enums.ResultEnum;
+import cn.weit.happymo.exception.MoException;
 import cn.weit.happymo.filter.AbstractMoMoFilter;
 import cn.weit.happymo.params.ControllerInfo;
 import cn.weit.happymo.params.FilterInfo;
 import cn.weit.happymo.params.MethodInfo;
-import cn.weit.happymo.session.SessionManger;
 import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
@@ -18,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,7 +67,7 @@ public class MoHandler extends ChannelInboundHandlerAdapter {
 
 	private void doController(ControllerInfo controllerInfo) throws Exception {
 		MethodInfo methodInfo = controllerInfo.getMethodInfo(request.uri());
-		String result="";
+		String result = "";
 		Class<?> clazz = controllerInfo.getClazz();
 		switch (methodInfo.getMethod()) {
 			case GET:
@@ -81,7 +81,7 @@ public class MoHandler extends ChannelInboundHandlerAdapter {
 				});
 				Class[] clazzType = new Class[classes.size()];
 				classes.toArray(clazzType);
-				Method method = clazz.getDeclaredMethod(methodInfo.getName(),clazzType);
+				Method method = clazz.getDeclaredMethod(methodInfo.getName(), clazzType);
 				String[] paramValues = new String[values.size()];
 				values.toArray(paramValues);
 				Object object = method.invoke(clazz.newInstance(), paramValues);
@@ -95,10 +95,10 @@ public class MoHandler extends ChannelInboundHandlerAdapter {
 				Class<?> classType = methodInfo.getParameters().get(0).getType();
 				method = clazz.getDeclaredMethod(methodInfo.getName(), classType);
 				object = method.invoke(clazz.newInstance(), gson.fromJson(jsonStr, classType));
-				result = (String)object;
+				result = (String) object;
 				break;
 			default:
-				break;
+				throw new MoException(ResultEnum.TYPE_NOT_SUPPORT);
 		}
 
 		response.content().writeBytes(result.getBytes());
@@ -119,6 +119,7 @@ public class MoHandler extends ChannelInboundHandlerAdapter {
 		}
 		return params;
 	}
+
 	private boolean doFilters(List<FilterInfo> filterInfos, String methodName) throws Exception {
 		if (filterInfos == null || filterInfos.isEmpty()) {
 			return true;
@@ -127,7 +128,7 @@ public class MoHandler extends ChannelInboundHandlerAdapter {
 			Class<? extends AbstractMoMoFilter> clazz = filterInfo.getClazz();
 			Method method = clazz.getDeclaredMethod(methodName, FullHttpRequest.class, FullHttpResponse.class);
 			boolean isPass = (boolean) method.invoke(filterInfo.getAbstractMoMoFilter(), request, response);
-			if (StringUtils.equals(methodName, FilterConstant.BEFORE) && !isPass ) {
+			if (StringUtils.equals(methodName, FilterConstant.BEFORE) && !isPass) {
 				return false;
 			}
 		}
