@@ -3,6 +3,7 @@ package cn.weit.happymo.service;
 
 import cn.weit.happymo.context.MoMoContext;
 import cn.weit.happymo.session.SessionManger;
+import cn.weit.happymo.util.ConfigParser;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -13,6 +14,10 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Optional;
+import java.util.Properties;
 
 /**
  * @author weitong
@@ -21,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 public class MoServer {
 	private String ip;
-	private int port;
+	private int port = -1;
 	private ServerBootstrap bootstrap;
 	private MoMoContext moMoContext;
 	private Channel channel;
@@ -29,6 +34,7 @@ public class MoServer {
 	private EventLoopGroup worker;
 	private int bossNum = 1;
 	private int workerNum = 1;
+	private Properties properties;
 
 	public MoServer withHost(String ip, int port) {
 		this.ip = ip;
@@ -46,9 +52,20 @@ public class MoServer {
 		return this;
 	}
 
-	public void start() {
+	public MoServer build() {
 		this.moMoContext = new MoMoContext();
+		this.properties = new ConfigParser().get("server.properties");
+		if (StringUtils.isEmpty(ip)) {
+			ip = Optional.ofNullable(properties.getProperty("ip")).orElse("0.0.0.0");
+		}
+		if (port == -1) {
+			port = Integer.getInteger(Optional.ofNullable(properties.getProperty("port")).orElse("8080"));
+		}
 		SessionManger.Instance().init(workerNum);
+		return this;
+	}
+
+	public void start() {
 		boss = new NioEventLoopGroup(bossNum);
 		worker = new NioEventLoopGroup(workerNum);
 		try {
