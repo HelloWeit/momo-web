@@ -4,4 +4,6 @@ mvn clean package
 
 docker build -t momoweb:latest .
 
-#docker run -it momoweb:latest --ip=容器的IP地址 --port=容器的PORT地址
+#docker run -it momoweb:latest --ip=192.168.0.1 --port=8080 -p 8080:8080
+
+#docker compose up -d

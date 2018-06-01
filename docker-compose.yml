@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  momoweb:
+#    build: .
+    image: momoweb:latest
+    command:
+    - "--ip=192.168.0.1"
+    - "--port=8080"
+    ports:
+      - 8080:8080
