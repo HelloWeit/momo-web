@@ -7,6 +7,8 @@ import cn.weit.happymo.params.FilterInfo;
 import cn.weit.happymo.params.MethodInfo;
 import cn.weit.happymo.enums.ResultEnum;
 import cn.weit.happymo.exception.MoException;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,16 +24,17 @@ import java.util.jar.JarInputStream;
 import java.util.stream.Collectors;
 
 /**
+ * 核心方法：扫描所有携带@MoFilter @MoController 注解的类
  * @author weitong
  */
 @Slf4j
 public class PackageScanner {
 
-	private ClassLoader classLoader;
+	private final ClassLoader classLoader;
 
-	private Map<Integer, FilterInfo> filterMap = new TreeMap<>();
+	private final Map<Integer, FilterInfo> filterMap = new TreeMap<>();
 	@Getter
-	private Map<String, ControllerInfo> controllerInfoMap = new HashMap<>();
+	private final Map<String, ControllerInfo> controllerInfoMap = new HashMap<>();
 
 	public PackageScanner() {
 		this.classLoader = getClass().getClassLoader();
@@ -45,7 +48,7 @@ public class PackageScanner {
 		if (packages == null || packages.length == 0) {
 			throw new MoException(ResultEnum.PARAM_ERROR);
 		}
-		Arrays.stream(packages).map(b -> parse(b)).flatMap(sList -> sList.stream()).forEach(s -> doScan(s));
+		Arrays.stream(packages).map(this::parse).flatMap(Collection::stream).forEach(this::doScan);
 	}
 
 	private void doScan(String className) {
@@ -64,30 +67,25 @@ public class PackageScanner {
 		}
 	}
 
-	private void scanFilter(Class<?> clazz) {
-		try {
-			MoFilter moFilter = clazz.getAnnotation(MoFilter.class);
-			Field[] fields = clazz.getDeclaredFields();
-			AbstractMoMoFilter abstractMoMoFilter = (AbstractMoMoFilter) clazz.newInstance();
-			for (Field field : fields) {
-				if (field.isAnnotationPresent(MoFilterUrl.class)) {
-					field.setAccessible(true);
-					field.set(abstractMoMoFilter, moFilter.url());
-					break;
-				}
+	private void scanFilter(Class<?> clazz) throws Exception {
+		MoFilter moFilter = clazz.getAnnotation(MoFilter.class);
+		Field[] fields = clazz.getDeclaredFields();
+		AbstractMoMoFilter abstractMoMoFilter = (AbstractMoMoFilter) clazz.newInstance();
+		for (Field field : fields) {
+			if (field.isAnnotationPresent(MoFilterUrl.class)) {
+				field.setAccessible(true);
+				field.set(abstractMoMoFilter, moFilter.url());
+				break;
 			}
-			FilterInfo filterInfo = new FilterInfo();
-			filterInfo.setUrl(moFilter.url());
-			filterInfo.setClazz((Class<? extends AbstractMoMoFilter>) clazz);
-			filterInfo.setAbstractMoMoFilter(abstractMoMoFilter);
-			filterMap.put(moFilter.value(), filterInfo);
-
-			Method method = clazz.getDeclaredMethod("init");
-			method.invoke(abstractMoMoFilter);
-		} catch (Exception e) {
-			log.error("scan filter error", e);
-			throw new MoException(ResultEnum.SCAN_ERROR);
 		}
+		FilterInfo filterInfo = new FilterInfo();
+		filterInfo.setUrl(moFilter.url());
+		filterInfo.setClazz(clazz);
+		filterInfo.setAbstractMoMoFilter(abstractMoMoFilter);
+		filterMap.put(moFilter.value(), filterInfo);
+
+		Method method = clazz.getDeclaredMethod("init");
+		method.invoke(abstractMoMoFilter);
 	}
 
 	private void scanController(Class<?> clazz) {
@@ -97,7 +95,7 @@ public class PackageScanner {
 		controllerInfo.setClassName(clazz.getName());
 		controllerInfo.setClazz(clazz);
 
-		Map<String, MethodInfo> methodInfoMap = new HashMap<>();
+		Map<String, MethodInfo> methodInfoMap = Maps.newHashMap();
 		Arrays.stream(clazz.getMethods()).filter(m -> m.isAnnotationPresent(MoRequestMapping.class))
 				.forEach(method -> {
 					MethodInfo methodInfo = new MethodInfo();
@@ -116,38 +114,30 @@ public class PackageScanner {
 	}
 
 	private List<String> parse(String base) {
-		List<String> classNames = new ArrayList<>();
 
 		String splashPath = base.replace("\\.", "/");
 		URL url = classLoader.getResource(splashPath);
 		if (url == null) {
 			log.info("url null, basePackage:{} ", base);
-			return classNames;
+			return Lists.newArrayList();
 		}
 		File file = new File(url.getPath());
-		if (file == null) {
-			log.debug("url null, basePackage:{}", base);
-			return classNames;
+		if (!isJarFile(file.getName())) {
+			return readFromDirectory(file, splashPath);
 		}
-		if (isJarFile(file.getName())) {
-			try {
-				classNames = readFromJarFile(file, splashPath);
-			} catch (Exception e) {
-				log.error("parse jar error", e);
-				throw new MoException(ResultEnum.PARSE_ERROR);
-			}
-		} else {
-			classNames = readFromDirectory(file, splashPath);
+		try {
+			return readFromJarFile(file, splashPath);
+		} catch (Exception e) {
+			log.error("parse jar error", e);
+			throw new MoException(ResultEnum.PARSE_ERROR);
 		}
-
-		return classNames;
 	}
 
 	private List<String> readFromJarFile(File file, String splashedPackageName) throws IOException {
 		JarInputStream jarIn = new JarInputStream(new FileInputStream(file));
 		JarEntry entry = jarIn.getNextJarEntry();
 
-		List<String> nameList = new ArrayList<>();
+		List<String> nameList = Lists.newArrayList();
 		while (null != entry) {
 			String name = entry.getName();
 			if (name.startsWith(splashedPackageName) && isClassFile(name)) {
@@ -160,20 +150,18 @@ public class PackageScanner {
 	}
 
 	private List<String> readFromDirectory(File file, String splashedPackageName) {
-		List<String> nameList = new ArrayList<>();
-
 		File[] files = file.listFiles();
-		if (files != null) {
-			for (File subFile : files) {
-				if (subFile.isDirectory()) {
-					List<String> subDirectoryList = readFromDirectory(subFile,
-							splashedPackageName + "/" + subFile.getName());
-					if (subDirectoryList != null) {
-						nameList.addAll(subDirectoryList);
-					}
-				} else if (isClassFile(subFile.getName())) {
-					nameList.add(trimExtension(splashedPackageName + "/" + subFile.getName()));
-				}
+		if (files == null) {
+			return Lists.newArrayList();
+		}
+		List<String> nameList = Lists.newArrayList();
+		for (File subFile : files) {
+			if (subFile.isDirectory()) {
+				List<String> subDirectoryList = readFromDirectory(subFile,
+						splashedPackageName + "/" + subFile.getName());
+				nameList.addAll(subDirectoryList);
+			} else if (isClassFile(subFile.getName())) {
+				nameList.add(trimExtension(splashedPackageName + "/" + subFile.getName()));
 			}
 		}
 
@@ -198,7 +186,7 @@ public class PackageScanner {
 	}
 
 	public List<FilterInfo> getFilters() {
-		return filterMap.values().stream().collect(Collectors.toList());
+		return Lists.newArrayList(filterMap.values());
 	}
 
 

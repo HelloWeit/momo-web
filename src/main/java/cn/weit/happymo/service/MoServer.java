@@ -27,14 +27,12 @@ import java.util.Properties;
 public class MoServer {
 	private String ip;
 	private int port = -1;
-	private ServerBootstrap bootstrap;
 	private MoMoContext moMoContext;
 	private Channel channel;
 	private EventLoopGroup boss;
 	private EventLoopGroup worker;
 	private int bossNum = 1;
 	private int workerNum = 1;
-	private Properties properties;
 
 	public MoServer withHost(String ip, int port) {
 		this.ip = ip;
@@ -54,7 +52,7 @@ public class MoServer {
 
 	public MoServer build() {
 		this.moMoContext = new MoMoContext();
-		this.properties = new ConfigParser().get("server.properties");
+		Properties properties = new ConfigParser().get("server.properties");
 		if (StringUtils.isEmpty(ip)) {
 			ip = Optional.ofNullable(properties.getProperty("ip")).orElse("0.0.0.0");
 		}
@@ -69,7 +67,7 @@ public class MoServer {
 		boss = new NioEventLoopGroup(bossNum);
 		worker = new NioEventLoopGroup(workerNum);
 		try {
-			bootstrap = new ServerBootstrap();
+			ServerBootstrap bootstrap = new ServerBootstrap();
 			bootstrap.group(boss, worker)
 					.channel(NioServerSocketChannel.class)
 					.childHandler(new ChannelInitializer<SocketChannel>() {

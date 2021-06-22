@@ -8,6 +8,8 @@ import cn.weit.happymo.filter.AbstractMoMoFilter;
 import cn.weit.happymo.params.ControllerInfo;
 import cn.weit.happymo.params.FilterInfo;
 import cn.weit.happymo.params.MethodInfo;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
@@ -34,21 +36,21 @@ public class MoHandler extends ChannelInboundHandlerAdapter {
 
 	private FullHttpResponse response;
 
-	private MoMoContext moMoContext;
+	private final MoMoContext moMoContext;
 
 	public MoHandler(MoMoContext moMoContext) {
 		this.moMoContext = moMoContext;
 	}
 
 	@Override
-	public void channelActive(ChannelHandlerContext ctx) throws Exception {
+	public void channelActive(ChannelHandlerContext ctx) {
 		response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
 	}
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		request = (FullHttpRequest) msg;
-		response = new DefaultFullHttpResponse(request.getProtocolVersion(), HttpResponseStatus.OK);
+		response = new DefaultFullHttpResponse(request.protocolVersion(), HttpResponseStatus.OK);
 		ControllerInfo controllerInfo = moMoContext.getControllerInfo(request.uri());
 		List<FilterInfo> filterInfos = moMoContext.getFilters(request.uri());
 		if (!doFilters(filterInfos, FilterConstant.BEFORE)) {
@@ -67,15 +69,14 @@ public class MoHandler extends ChannelInboundHandlerAdapter {
 
 	private void doController(ControllerInfo controllerInfo) throws Exception {
 		MethodInfo methodInfo = controllerInfo.getMethodInfo(request.uri());
-		String result = "";
+		String result;
 		Class<?> clazz = controllerInfo.getClazz();
 		switch (methodInfo.getMethod()) {
 			case GET:
 				Map<String, String> params = parseParams(request.uri());
-
-				List<Class<?>> classes = new ArrayList<>();
-				List<String> values = new ArrayList<>();
-				methodInfo.getParameters().stream().forEach(p -> {
+				List<Class<?>> classes = Lists.newArrayList();
+				List<String> values = Lists.newArrayList();
+				methodInfo.getParameters().forEach(p -> {
 					classes.add(p.getType());
 					values.add(params.get(p.getName()));
 				});
@@ -107,7 +108,7 @@ public class MoHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	private Map<String, String> parseParams(String uri) {
-		Map<String, String> params = new HashMap<>();
+		Map<String, String> params = Maps.newHashMap();
 		int pos = uri.indexOf("?");
 		if (pos >= 0) {
 			for (String pair : uri.substring(pos + 1).split("&")) {
@@ -125,7 +126,7 @@ public class MoHandler extends ChannelInboundHandlerAdapter {
 			return true;
 		}
 		for (FilterInfo filterInfo : filterInfos) {
-			Class<? extends AbstractMoMoFilter> clazz = filterInfo.getClazz();
+			Class<?> clazz = filterInfo.getClazz();
 			Method method = clazz.getDeclaredMethod(methodName, FullHttpRequest.class, FullHttpResponse.class);
 			boolean isPass = (boolean) method.invoke(filterInfo.getAbstractMoMoFilter(), request, response);
 			if (StringUtils.equals(methodName, FilterConstant.BEFORE) && !isPass) {
@@ -136,7 +137,7 @@ public class MoHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 		log.error("Netty exceptionCaught", cause);
 		send(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
 		ctx.close();

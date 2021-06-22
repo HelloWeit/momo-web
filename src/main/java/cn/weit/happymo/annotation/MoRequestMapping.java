@@ -4,6 +4,9 @@ import cn.weit.happymo.enums.RequestMethod;
 
 import java.lang.annotation.*;
 
+/**
+ * @author weitong
+ */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

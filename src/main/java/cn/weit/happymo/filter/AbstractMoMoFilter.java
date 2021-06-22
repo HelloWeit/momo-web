@@ -15,13 +15,15 @@ public abstract class AbstractMoMoFilter {
 
 	/**
 	 * 前置处理
-	 * @param request
+	 * @param request 请求
+	 * @param response 响应
 	 */
 	public abstract boolean before(FullHttpRequest request, FullHttpResponse response);
 
 	/**
 	 * 后置处理
-	 * @param response
-	 */
-	public abstract void after(FullHttpRequest request, FullHttpResponse response);
+	 * @param request 请求
+	 * @param response 响应
+	 * */
+	public abstract boolean after(FullHttpRequest request, FullHttpResponse response);
 }

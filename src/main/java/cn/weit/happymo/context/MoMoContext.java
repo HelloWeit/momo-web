@@ -14,21 +14,19 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class MoMoContext {
-	private List<FilterInfo> filters;
+	private final List<FilterInfo> filters;
 
 	private final Map<String, ControllerInfo> controllerInfoMap;
 
-	private PackageScanner packageScanner;
-
 	public MoMoContext() {
-		packageScanner = new PackageScanner();
+		PackageScanner packageScanner = new PackageScanner();
 		packageScanner.scan();
 		this.filters = packageScanner.getFilters();
 		this.controllerInfoMap = packageScanner.getControllerInfoMap();
 	}
 
 	public ControllerInfo getControllerInfo(String url) {
-		return controllerInfoMap.get(controllerInfoMap.keySet().stream().filter(k -> url.startsWith(k)).findFirst().orElse(""));
+		return controllerInfoMap.get(controllerInfoMap.keySet().stream().filter(url::startsWith).findFirst().orElse(""));
 	}
 
 	public List<FilterInfo> getFilters(String url) {

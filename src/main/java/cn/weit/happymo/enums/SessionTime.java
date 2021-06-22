@@ -10,10 +10,13 @@ import java.util.Arrays;
 
 @Getter
 public enum SessionTime {
+	/**
+	 *
+	 */
 	NORMAL(1),
 	SPECIAL(7 * 24),
 	ERROR(-1),;
-	private long time;
+	private final long time;
 
 	SessionTime(long time) {
 		this.time = time;

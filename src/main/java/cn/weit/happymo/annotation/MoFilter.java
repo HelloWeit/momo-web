@@ -2,6 +2,9 @@ package cn.weit.happymo.annotation;
 
 import java.lang.annotation.*;
 
+/**
+ * @author weitong
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

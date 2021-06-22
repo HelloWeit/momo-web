@@ -33,6 +33,7 @@ public class Demo {
 				.withHost("127.0.0.1", 8080)
 				.withBossNum(1)
 				.withWorkerNum(4)
+				.build()
 				.start();
 	}
 }

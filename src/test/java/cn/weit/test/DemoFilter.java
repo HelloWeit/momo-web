@@ -21,16 +21,17 @@ public class DemoFilter extends AbstractMoMoFilter {
 
 	@Override
 	public boolean before(FullHttpRequest request, FullHttpResponse response) {
-		if (request.uri().startsWith(filterUrl)) {
-			log.info("forbidden {}", request.uri());
+		if (!request.uri().startsWith(filterUrl)) {
+			log.info("allow {}", request.uri());
 			return false;
 		}
-		log.info("allow {}", request.uri());
+		log.info("forbidden {}", request.uri());
 		return true;
 	}
 
 	@Override
-	public void after(FullHttpRequest request, FullHttpResponse response) {
+	public boolean after(FullHttpRequest request, FullHttpResponse response) {
 		log.info("after");
+		return true;
 	}
 }
